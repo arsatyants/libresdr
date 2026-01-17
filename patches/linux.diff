@@ -67,10 +67,10 @@ index 000000000000..3c8d127b7329
 +	
 diff --git a/arch/arm/boot/dts/zynq-libre.dtsi b/arch/arm/boot/dts/zynq-libre.dtsi
 new file mode 100644
-index 000000000000..5a524e0a741f
+index 000000000000..e0e5c88c0639
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-libre.dtsi
-@@ -0,0 +1,450 @@
+@@ -0,0 +1,454 @@
 +/*
 + * Libre SDR (Z7020/AD936x)
 + *
@@ -166,24 +166,28 @@ index 000000000000..5a524e0a741f
 +		#size-cells = <1>;
 +		spi-tx-bus-width = <1>;
 +		spi-rx-bus-width = <4>;
-+		compatible = "n25q256a", "n25q512a", "jedec,spi-nor"; /* same as S25FL256 */
++		compatible = "winbond,w25q256", "jedec,spi-nor";
 +		reg = <0x0>;
 +		spi-max-frequency = <50000000>;
++		m25p,fast-read;
++		broken-flash-reset; /* w25q256 needs special handling */
++		spi-nor,ddr-quad-read-dummy = <6>;
++		no-wp;
 +		partition@qspi-fsbl-uboot {
 +			label = "qspi-fsbl-uboot";
-+			reg = <0x0 0x100000>; /* 1M */
++			reg = <0x0 0x400000>; /* 4M - increased for 2.7M BOOT.bin */
 +		};
 +		partition@qspi-uboot-env {
 +			label = "qspi-uboot-env";
-+			reg = <0x100000 0x20000>; /* 128k */
++			reg = <0x400000 0x20000>; /* 128k */
 +		};
 +		partition@qspi-nvmfs {
 +			label = "qspi-nvmfs";
-+			reg = <0x120000 0xE0000>; /* 1M */
++			reg = <0x420000 0xE0000>; /* 1M */
 +		};
 +		partition@qspi-linux {
 +			label = "qspi-linux";
-+			reg = <0x200000 0x1E00000>; /* 30M */
++			reg = <0x500000 0x1B00000>; /* 27M - adjusted for larger mtd0 */
 +		};
 +	};
 +};
@@ -523,7 +527,7 @@ index 000000000000..5a524e0a741f
 +
 diff --git a/arch/arm/configs/zynq_libre_defconfig b/arch/arm/configs/zynq_libre_defconfig
 new file mode 100644
-index 000000000000..994013f83ecc
+index 000000000000..3a78cc84b182
 --- /dev/null
 +++ b/arch/arm/configs/zynq_libre_defconfig
 @@ -0,0 +1,286 @@
